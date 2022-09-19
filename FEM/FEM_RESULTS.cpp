@@ -41,7 +41,7 @@ void WriteMeshVTK(FemMesh2D M, const char *Name, int NumStep) {
 		Out << "LOOKUP_TABLE default" << endl;
 	
 		for (auto& N : M->Nodes)
-			Out << N->Value[i] << endl;
+			Out << float(N->Value[i]) << endl;
 	}
 	
 	Out.close();

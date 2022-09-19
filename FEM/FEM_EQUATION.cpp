@@ -8,7 +8,7 @@ void BOUNDARY_CONDITION::SetArea(bool(*Set)(dVec2 x), FemMesh2D Mesh) {
 	//добавление в граничное условие элементы границы
 
 	for (auto& s : Mesh->Sides)
-		if (Set(s->NodeBegin->X) || Set(s->NodeEnd->X))
+		if (Set(s->NodeBegin->X) && Set(s->NodeEnd->X))
 			Sides.push_back(s);
 }
 //============================================================//

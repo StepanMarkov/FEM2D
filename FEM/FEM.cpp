@@ -44,8 +44,16 @@ FORCEINLINE double MeshDist(dVec2 X)
 }
 
 const double koef = 1e+10;
+const double e = 2E+11;
+const double v = 0.3;
+const double lambda = e * v / (1.0 + v) / (1 - 2.0 * v);
+const double mu = e / 2.0 / (1.0 + v);
+const double force = 1E+6;
 
 int main() {
+
+	//cout << 1.0 + lambda / mu;
+	//system("PAUSE");
 
 	TERM Term;
 	BOUNDARY_CONDITION Bound;
@@ -71,7 +79,7 @@ int main() {
 
 	Term.Type = EQUATION::DIRIVATE;
 	Term.Len = 1;
-	Term.ConstCell = [&](FemCell2D c) {return 6.0; };
+	Term.ConstCell = [&](FemCell2D c) {return 1.0 + lambda / mu; };
 	Term.param1[0] = 2;
 	Term.param1[1] = 0;
 	Equation.TERMS.push_back(Term);
@@ -79,7 +87,30 @@ int main() {
 	Bound.TERMS.clear();
 	Bound.Sides.clear();
 	Term.Len = 0;
-	Term.ConstSide = [](FemSide2D s) {return  -1.0 * koef; };
+	Term.ConstSide = [](FemSide2D s) {return  force / 2.0 / mu; };
+	Bound.TERMS.push_back(Term);
+	Term.Len = 1;
+	Term.param1[0] = 2;
+	Term.ConstSide = [](FemSide2D s) {return  -lambda / 2.0 / mu; };
+	Bound.TERMS.push_back(Term);
+	Bound.SetArea(RIGHT, Solver.MeshMain);
+	Equation.BoundaryConditions.push_back(Bound);
+
+	//Bound.Sides.clear();
+	//Term.Len = 0;
+	//Term.ConstSide = [](FemSide2D s) {return  1.0 * koef; };
+	//Bound.TERMS.push_back(Term);
+	//Term.Len = 1;
+	//Term.param1[0] = 0;
+	//Term.ConstSide = [](FemSide2D s) {return  -koef; };
+	//Bound.TERMS.push_back(Term);
+	//Bound.SetArea(RIGHT, Solver.MeshMain);
+	//Equation.BoundaryConditions.push_back(Bound);
+
+	Bound.TERMS.clear();
+	Bound.Sides.clear();
+	Term.Len = 0;
+	Term.ConstSide = [](FemSide2D s) {return  0.0 * koef; };
 	Bound.TERMS.push_back(Term);
 	Term.Len = 1;
 	Term.param1[0] = 0;
@@ -88,20 +119,8 @@ int main() {
 	Bound.SetArea(LEFT, Solver.MeshMain);
 	Equation.BoundaryConditions.push_back(Bound);
 
-	Bound.TERMS.clear();
-	Bound.Sides.clear();
-	Term.Len = 0;
-	Term.ConstSide = [](FemSide2D s) {return  1.0 * koef; };
-	Bound.TERMS.push_back(Term);
-	Term.Len = 1;
-	Term.param1[0] = 0;
-	Term.ConstSide = [](FemSide2D s) {return  -koef; };
-	Bound.TERMS.push_back(Term);
-	Bound.SetArea(RIGHT, Solver.MeshMain);
-	Equation.BoundaryConditions.push_back(Bound);
-
 	Equation.Intitialization(Init0);
-	Equation.Relax = 0.6;
+	Equation.Relax = 0.8;
 	Solver.Equations.push_back(Equation);
 	//-----------------------------------------------------//
 	Solver.MeshMain->Names.push_back("UY");
@@ -114,7 +133,7 @@ int main() {
 
 	Term.Type = EQUATION::DIRIVATE;
 	Term.Len = 1;
-	Term.ConstCell = [&](FemCell2D c) {return 6.0; };
+	Term.ConstCell = [&](FemCell2D c) {return 1.0 + lambda / mu; };
 	Term.param1[0] = 2;
 	Term.param1[1] = 1;
 	Equation.TERMS.push_back(Term);
@@ -132,7 +151,7 @@ int main() {
 	Equation.BoundaryConditions.push_back(Bound);
 
 	Equation.Intitialization(Init0);
-	Equation.Relax = 0.6;
+	Equation.Relax = 0.8;
 	Solver.Equations.push_back(Equation);
 	//----------------------------------------------------//
 	Solver.MeshMain->Names.push_back("TETA");
@@ -159,7 +178,7 @@ int main() {
 	Equation.BoundaryConditions.push_back(Bound);
 
 	Equation.Intitialization(Init0);
-	Equation.Relax = 0.5;
+	Equation.Relax = 0.8;
 	Solver.Equations.push_back(Equation);
 	//----------------------------------------------------//
 
@@ -168,7 +187,7 @@ int main() {
 	cout << "Sides " << Solver.MeshMain->Sides.size() << endl;
 	cout << "Elems " << Solver.MeshMain->Cells.size() << endl;
 
-	Solver.MaxInterIter = 20000;
+	Solver.MaxInterIter = 100000;
 	Solver.TimeSteps = 1;
 
 	time_t t;
