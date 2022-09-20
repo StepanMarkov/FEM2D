@@ -6,6 +6,7 @@
 #include <map>
 #include <set>
 #include <iostream>
+#include <cassert>
 
 using namespace MESH;
 
@@ -61,7 +62,6 @@ void MESH2D::AddTriangle(dVec2 Xhead) {
 	Side3->SideR = Side1;
 }
 
-//========================================================================================================================//
 void MESH2D::Optimization(int Ndir, double eps, int Iter) {
 	omp_set_num_threads(16);
 
@@ -170,7 +170,7 @@ void MESH2D::Optimization(int Ndir, double eps, int Iter) {
 
 	} //итерации	
 }
-//=============================================//
+
 void MESH2D::Meshing(dVec2 Xhead) {
 
 	omp_set_num_threads(16);
@@ -413,6 +413,12 @@ void MESH2D::ReadFormatK(const char* name) {
 	SIDE2D Side[3];
 	fstream file(name);
 	string word; 
+	
+
+	if (!file.is_open()) {
+		cout << "Mesh file not found";
+		exit(1);
+	}
 	
 	while (word != "*NODE")
 		file >> word;

@@ -1,9 +1,9 @@
 #include "FEM_RESULTS.h"
 #include <string>
 
-void WriteMeshVTK(FemMesh2D M, const char *Name, int NumStep) {
+void WriteMeshVTK(FemMesh2D M, const char *Name) {
 
-	ofstream Out = ofstream(ofstream(std::to_string(NumStep) + "SOLUTION.vtk"));
+	ofstream Out = ofstream(Name);
 	
 	Out << "# vtk DataFile Version 2.0" << endl;
 	Out << "Unstructured Grid Example" << endl;

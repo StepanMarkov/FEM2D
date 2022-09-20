@@ -118,7 +118,7 @@ void EQUATION::UpdateMatrix() {
 									cell->ShapeMoment2[P->IndexSelf[i]][j] *
 									cell->Nodes[j]->Value[term.param1[0]];
 							//выделение диагональных слагаемых в Matrix[Neq][8] "на лету"
-							else P->Matrix[Neq][8] += term.ConstCell(cell) *
+							else P->MatrixDiag[Neq] += term.ConstCell(cell) *
 								cell->ShapeMoment2[P->IndexSelf[i]][j];
 						}
 			}

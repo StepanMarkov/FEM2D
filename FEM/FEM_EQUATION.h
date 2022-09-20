@@ -9,7 +9,6 @@ using namespace std;
 using namespace FEM;
 using namespace MESH;
 
-//================================================//
 //класс для построения граничных условий
 //класс для построения уравнений
 
@@ -23,8 +22,7 @@ struct TERM {
 	std::function<double(FemCell2D c)> ConstCell;  //возращает коэффциент для конкретной ячейки
 	std::function<double(FemSide2D c)> ConstSide;  //возвращает коэффициент для конкретного элемента границы
 };
-//================================================//
- 
+
 //КЛАСС ГРАНИЧНЫХ УСЛОВИЙ//
 struct BOUNDARY_CONDITION {
 	vector <TERM> TERMS;								//структура граничного условия
@@ -32,7 +30,6 @@ struct BOUNDARY_CONDITION {
 	void SetArea(bool(*Set)(dVec2 x), FemMesh2D Mesh);  //добавление элементов границы
 };
 
-//================================================//
 //КЛАСС ДИФФЕРЕНЦИАЛЬНОГО УРАВНЕНИЯ//
 struct EQUATION {
 	
@@ -51,4 +48,3 @@ struct EQUATION {
             
 	enum TYPE_TERM { TIME, LAPLASS, THIS, SOURCE, CONVECTIVE, DIVERGENCE, DIRIVATE, LAPLASS_CONVECTIVE, TABLE};
 };
-//===========================================================================================================================//

@@ -47,7 +47,7 @@ void SIDE2D::CreateSide(FemNode2D n1, FemNode2D n2, FemCell2D Cell) {
 	//определение длины
 	Len = distance(NodeBegin->X, NodeEnd->X);
 }
-//======================================================================================================================//
+
 void SIDE2D::FormCalculate(bool Axis) {
 
 	//расчитывает значения, зависящие от формы
@@ -88,7 +88,7 @@ void SIDE2D::FormCalculate(bool Axis) {
 					   }, 50);
 	}
 }
-//======================================================================================================================//
+
 double SIDE2D::IntegrateSide(const std::function<double(dVec2)>& Func, int Num) {
 
 	//интегрирование по элементу границы (численно)
@@ -106,7 +106,7 @@ double SIDE2D::IntegrateSide(const std::function<double(dVec2)>& Func, int Num) 
 
 	return (Sum * this->Len / (double)(Num));
 }
-//=================================================================//
+
 double CELL2D::GetGradient(int i, int k) {
 
 	double Sum(0.0);
@@ -114,7 +114,7 @@ double CELL2D::GetGradient(int i, int k) {
 		Sum += (this->Nodes[j]->Value[i]) * Form[k][j];
 	return Sum;
 }
-//=====================================================//
+
 double CELL2D::IntegrateElem(const std::function<double(dVec2)>& Func, int Num) {
 	
 	double Sum(0.0);

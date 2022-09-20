@@ -13,7 +13,7 @@ add_executable (FEM
 "FEM_EQUATION.cpp"
 "FEM_SOLVER.cpp"
 "FEM_RESULTS.cpp"
-)
+  "FEM_LAME.h")
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET FEM PROPERTY CXX_STANDARD 20)
