@@ -3,25 +3,23 @@
 
 using namespace FEM;
 
-//===========================================================//
 void NODE2D::SetInternalIndex() {
 
-	//индексация разряженной матрицы
-	Index.resize(Matrix.size());
-
-	for (int i(0); i != Cells.size(); ++i)
-		for (int j(0); j != 3; ++j) {
-			//[6] указывает на this (индексация указывает на этот узел)
-			
-			Index[i][j] = 6;
+	const auto size(Cells.size());
+	Index.resize(size);
+	IndexSelf.resize(size);
+	
+	for (int i(0); i != size; ++i)
+		for (int j(0); j != 3; ++j) {		
+			Index[i][j] = Nodes.size();
 			for (int k(0); k != Nodes.size(); ++k)
 				if (Nodes[k] == Cells[i]->Nodes[j])
 					Index[i][j] = k;
-			if (Index[i][j] == 6) 
+			if (Index[i][j] == Nodes.size())
 				IndexSelf[i] = j;
 		}
 }	
-//======================================================================================================================//
+
 void SIDE2D::CreateSide(FemNode2D n1, FemNode2D n2, FemCell2D Cell) {
 
 	//создает элемент границы

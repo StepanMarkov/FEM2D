@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <vector>
+#include <array>
 #include <functional>
 #include "FEM_MATH.h"
 
@@ -35,8 +36,9 @@ namespace FEM
 		vector<vector <double>> Matrix;    //коэффициенты матрицы
 		vector<vector <double>> MatrixPre; //коэффициенты матрицы для значений на предыдущем временном слое
 		vector<double> MatrixFree;
-		vector<unsigned char> IndexSelf;
-		vector<unsigned char[3]> Index;
+		vector<double> MatrixDiag;
+		vector<int> IndexSelf;
+		vector<array<int,3>> Index;
 		bool SwBool;	//вспомогательная переменная для обхода графа
 		bool SwBound;	//определяет лежит ли узел на границе
 

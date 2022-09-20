@@ -521,7 +521,4 @@ void MESH2D::ReadFormatK(const char* name) {
 		for (int i(0); i < this->Sides.size(); ++i)
 			this->Sides[i]->FormCalculate(this->Axis);
 	}
-
-	system("PAUSE");
-
 }

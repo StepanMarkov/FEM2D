@@ -29,8 +29,8 @@ void SOLVER::Calculation() {
 
 		}//завершение внутренних итераций
 
-		for (auto& equation : Equations)
-			equation.NewTimeStep();
+		//for (auto& equation : Equations)
+		//	equation.NewTimeStep();
 
 	}
 }

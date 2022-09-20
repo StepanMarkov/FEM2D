@@ -43,7 +43,7 @@ struct EQUATION {
 	int Neq;														  //номер дифференциального уравнения
 	bool Static;													  //уравнение не содержит временных зависимостей
 
-	void Intitialization(double(*InitCondition)(dVec2 X));            //инициализация
+	void Intitialization();												//инициализация
 	void ConstructMatrix();                                           //построение матрицы
 	void UpdateMatrix();                                              //корректировка матрицы
 	void InternalIteration();										  //внутренняя итерация
