@@ -1,6 +1,11 @@
 #include "FEM_MESH.h"
 #include "FEM_RESULTS.h"
 #include <omp.h>
+#include <string>
+#include <fstream>
+#include <map>
+#include <set>
+#include <iostream>
 
 using namespace MESH;
 
@@ -394,5 +399,129 @@ void MESH2D::Meshing(dVec2 Xhead) {
 		for (int i(0); i < this->Sides.size(); ++i)
 			this->Sides[i]->FormCalculate(this->Axis);
 	}
+
+}
+
+void MESH2D::ReadFormatK(const char* name) {
+
+	map<size_t, FemNode2D> map1;
+	map<FemNode2D, pair<set<FemCell2D>,
+		set<FemNode2D>>>  map2;
+	map<size_t, SIDE2D> map4;
+	set<size_t> set1;
+	size_t hach[3];
+	SIDE2D Side[3];
+	fstream file(name);
+	string word; 
+	
+	while (word != "*NODE")
+		file >> word;
+
+	int nid, eid, pid, n1, n2, n3, n4;
+	double x, y, z, tc, rc;
+
+	while (true) {
+
+		file >> word;
+
+		while (word[0] == '$') {
+			getline(file, word);
+			file >> word;
+		}
+
+		if (word[0] == '*') break;
+
+		nid = stoi(word);
+		file >> x >> y >> z >> tc >> rc;
+		FemNode2D NewNode(new NODE2D());
+		NewNode->X = { x,y };
+		this->Nodes.push_back(NewNode);
+		map1[nid] = NewNode;
+	}
+
+	while (word != "*ELEMENT_SHELL")
+		file >> word;
+
+	while (true) {
+
+		file >> word;
+
+		while (word[0] == '$') {
+			getline(file, word);
+			file >> word;
+		}
+
+		if (word[0] == '*') break;
+
+		file >> pid >> n1 >> n2 >> n3 >> n4;
+		FemCell2D NewCell(new CELL2D());
+		this->Cells.push_back(NewCell);
+		NewCell->Nodes = { map1[n1], 
+						   map1[n2], 
+			               map1[n3] };
+
+		auto& v(NewCell->Nodes);
+		hach[0] = size_t(v[0]) ^ size_t(v[1]);
+		hach[1] = size_t(v[0]) ^ size_t(v[2]);
+		hach[2] = size_t(v[1]) ^ size_t(v[2]);
+		hach[0] += size_t(v[0]) * size_t(v[1]);
+		hach[1] += size_t(v[0]) * size_t(v[2]);
+		hach[2] += size_t(v[1]) * size_t(v[2]);
+		Side[0].CreateSide(v[0], v[1], NewCell);
+		Side[1].CreateSide(v[0], v[2], NewCell);
+		Side[2].CreateSide(v[1], v[2], NewCell);
+		
+		for (int i(0); i != 3; ++i)
+			if (set1.find(hach[i]) != set1.end())
+				map4.erase(hach[i]);
+			else {
+				map4[hach[i]] = Side[i];
+				set1.insert(hach[i]);
+			}
+	}
+
+	file.close();
+
+	for (auto& cell : Cells)
+		for (auto& node : cell->Nodes) {
+			auto& x = map2[node];
+			x.first.insert(cell);
+			x.second.insert(cell->Nodes.begin(), 
+				cell->Nodes.end());
+		}
+	
+	for (auto& x : map2) {
+		for (auto& p : x.second.first)
+			x.first->Cells.push_back(p);
+		for (auto& p : x.second.second)
+			if (x.first != p)
+				x.first->Nodes.push_back(p);
+	}
+
+	for (auto& x : map4)
+		this->Sides.push_back(new SIDE2D(x.second));
+
+	int num(0);
+	for (auto& node : Nodes)
+		node->Num = num++;
+
+	cout << "Mesh" << endl;
+	cout << "Nodes " << Nodes.size() << endl;
+	cout << "Sides " << Sides.size() << endl;
+	cout << "Cells " << Cells.size() << endl;
+
+	omp_set_num_threads(16);
+
+#pragma omp parallel
+	{
+	#pragma omp for
+		for (int i(0); i < this->Cells.size(); ++i)
+			Cells[i]->FormCalculate(this->Axis);
+	#pragma omp for
+		for (int i(0); i < this->Sides.size(); ++i)
+			this->Sides[i]->FormCalculate(this->Axis);
+	}
+
+	system("PAUSE");
 
 }

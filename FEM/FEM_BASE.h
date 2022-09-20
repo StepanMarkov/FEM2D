@@ -34,8 +34,9 @@ namespace FEM
 		vector <double> ValuePre;          //значени€ на предыдущем временном слое
 		vector<vector <double>> Matrix;    //коэффициенты матрицы
 		vector<vector <double>> MatrixPre; //коэффициенты матрицы дл€ значений на предыдущем временном слое
-		unsigned char IndexSelf[6];       //определ€ет индексацию (дл€ построени€ разреженной матрицы)
-		unsigned char Index[6][3];        //[i][j], i - номер соседней €чейки, j - номер узла
+		vector<double> MatrixFree;
+		vector<unsigned char> IndexSelf;
+		vector<unsigned char[3]> Index;
 		bool SwBool;	//вспомогательна€ переменна€ дл€ обхода графа
 		bool SwBound;	//определ€ет лежит ли узел на границе
 

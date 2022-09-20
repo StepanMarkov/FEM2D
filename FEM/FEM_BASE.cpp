@@ -7,10 +7,12 @@ using namespace FEM;
 void NODE2D::SetInternalIndex() {
 
 	//индексация разряженной матрицы
+	Index.resize(Matrix.size());
 
 	for (int i(0); i != Cells.size(); ++i)
 		for (int j(0); j != 3; ++j) {
 			//[6] указывает на this (индексация указывает на этот узел)
+			
 			Index[i][j] = 6;
 			for (int k(0); k != Nodes.size(); ++k)
 				if (Nodes[k] == Cells[i]->Nodes[j])

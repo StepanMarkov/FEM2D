@@ -14,24 +14,15 @@ void BOUNDARY_CONDITION::SetArea(bool(*Set)(dVec2 x), FemMesh2D Mesh) {
 //============================================================//
 void EQUATION::Intitialization(double(*InitCondition)(dVec2 X)) {
 
-	//инициализацяи начальными условиями
-	
-	double X;
-	vector <double> VX(9);
-	fill(VX.begin(), VX.end(), 0.0);
-
-	for(auto& P : Mesh->Nodes) {
-		
-		X = InitCondition(P->X);
-		P->Matrix.push_back(VX);
-		P->Value.push_back(X);
+	for (auto& node : Mesh->Nodes) {
+		auto value(InitCondition(node->X));
+		auto num(node->Nodes.size() + 1);
+		node->Value.push_back(value);
+		node->MatrixFree.push_back(0.0);
+		node->Matrix.push_back(vector<double>(num));
+		auto& v = node->Matrix.back();
+		fill(v.begin(), v.end(), 0.0);
 	}
-
-	if (!Static)
-		for (auto& P : Mesh->Nodes) {
-			P->MatrixPre = P->Matrix;
-			P->ValuePre = P->Value;
-		}
 }
 //==============================================================//
 void EQUATION::ConstructMatrix() {
@@ -96,8 +87,7 @@ void EQUATION::UpdateMatrix() {
 
 	for (auto& P : Mesh->Nodes) {
 
-		P->Matrix[Neq][7] = 0.0;
-		P->Matrix[Neq][8] = 0.0;
+		P->MatrixFree[Neq] = 0.0;
 
 		//цикл по структуре уравнения
 		for(auto& term : TERMS) {
@@ -109,7 +99,7 @@ void EQUATION::UpdateMatrix() {
 				if (term.Len == 0)
 					for (int i = 0; i < P->Cells.size(); ++i) {
 						auto& cell = P->Cells[i];
-						P->Matrix[Neq][7] += term.ConstCell(cell) *
+						P->MatrixFree[Neq] += term.ConstCell(cell) *
 							cell->ShapeMoment1[P->IndexSelf[i]];
 					}
 
@@ -117,19 +107,11 @@ void EQUATION::UpdateMatrix() {
 				if (term.Len == 1)
 					for (int i(0); i != P->Cells.size(); ++i)
 						for (int j(0); j != P->Cells[i]->Nodes.size(); ++j) {
-
 							auto& cell = P->Cells[i];
-							
-							//если слагаемое не "диагональное"
-							if ((Neq != term.param1[0]) || (cell->Nodes[j] != P)) {
+							P->MatrixFree[Neq] += term.ConstCell(cell) *
+								cell->ShapeMoment2[P->IndexSelf[i]][j] *
+								cell->Nodes[j]->Value[term.param1[0]];
 
-								P->Matrix[Neq][7] += term.ConstCell(cell) *
-									cell->ShapeMoment2[P->IndexSelf[i]][j] *
-									cell->Nodes[j]->Value[term.param1[0]];
-							}
-							//выделение диагональных слагаемых в Matrix[Neq][8] "на лету"
-							else P->Matrix[Neq][8] += term.ConstCell(cell) *
-									cell->ShapeMoment2[P->IndexSelf[i]][j];
 						}				
 			}
 
@@ -147,7 +129,7 @@ void EQUATION::UpdateMatrix() {
 							sum += (cell->ShapeMoment2[P->IndexSelf[i]][j]) *
 								(cell->Nodes[j]->Value[term.param1[0]]);
 						
-						P->Matrix[Neq][7] += sum * cell->GetGradient(term.param1[1], term.param1[2]) *
+						P->MatrixFree[Neq] += sum * cell->GetGradient(term.param1[1], term.param1[2]) *
 								term.ConstCell(cell);
 					}
 			}
@@ -170,8 +152,8 @@ void EQUATION::UpdateMatrix() {
 								*(cell->Nodes[j]->Value[term.param1[1]]);
 						}
 					
-						P->Matrix[Neq][7] -= sum1 * cell->Form[1][P->IndexSelf[i]] * term.ConstCell(cell);
-						P->Matrix[Neq][7] -= sum2 * cell->Form[2][P->IndexSelf[i]] * term.ConstCell(cell);
+						P->MatrixFree[Neq] -= sum1 * cell->Form[1][P->IndexSelf[i]] * term.ConstCell(cell);
+						P->MatrixFree[Neq] -= sum2 * cell->Form[2][P->IndexSelf[i]] * term.ConstCell(cell);
 					}
 
 			//производная по координате некоторой переменной
@@ -179,7 +161,7 @@ void EQUATION::UpdateMatrix() {
 				if (term.Len == 1)
 					for (int i(0); i != P->Cells.size(); ++i) {
 						auto& cell = P->Cells[i];
-						P->Matrix[Neq][7] += (cell->ShapeMoment1[P->IndexSelf[i]])
+						P->MatrixFree[Neq] += (cell->ShapeMoment1[P->IndexSelf[i]])
 							* cell->GetGradient(term.param1[0], term.param1[1]) * term.ConstCell(cell);
 					}
 	
@@ -199,15 +181,12 @@ void EQUATION::UpdateMatrix() {
 						continue;
 
 					if (term.Len == 0)
-						P->Matrix[Neq][7] += term.ConstSide(S) * S->ShapeMoment1[i];
+						P->MatrixFree[Neq] += term.ConstSide(S) * S->ShapeMoment1[i];
 					
 					if (term.Len == 1)
-						for (int j(0); j != 3; j++) {
-							if ((term.param1[0] == Neq) && (S->CellLink->Nodes[j] == P))
-								 P->Matrix[Neq][8] += term.ConstSide(S) * S->ShapeMoment2[i][j];
-							else P->Matrix[Neq][7] += term.ConstSide(S) * S->ShapeMoment2[i][j] 
-								* S->CellLink->Nodes[j]->Value[term.param1[0]];
-						}				
+						for (int j(0); j != 3; j++) 
+							P->MatrixFree[Neq] += term.ConstSide(S) * S->ShapeMoment2[i][j]
+								* S->CellLink->Nodes[j]->Value[term.param1[0]];				
 
 				}
 }

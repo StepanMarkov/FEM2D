@@ -34,5 +34,6 @@ namespace MESH
 		//Eps - параметр, определ€ющий скорость оптимизации (наподобии коэффициента релаксации)
 		//Iteration - количество итераций при оптимизации
 		void Optimization(int Ndir, double Eps, int Iteration);
+		void ReadFormatK(const char*);
 	};
 }
