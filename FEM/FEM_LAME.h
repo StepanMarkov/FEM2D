@@ -60,7 +60,7 @@ void SetLameEquations(SOLVER& Solver) {
 	Equation.BoundaryConditions.push_back(Bound);
 
 	Equation.Intitialization();
-	Equation.Relax = 0.9;
+	Equation.Relax = 0.8;
 	Solver.Equations.push_back(Equation);
 
 	Solver.MeshMain->Names.push_back("UY");
@@ -90,7 +90,7 @@ void SetLameEquations(SOLVER& Solver) {
 	Equation.BoundaryConditions.push_back(Bound);
 
 	Equation.Intitialization();
-	Equation.Relax = 0.9;
+	Equation.Relax = 0.8;
 	Solver.Equations.push_back(Equation);
 
 	Solver.MeshMain->Names.push_back("TETA");
@@ -117,7 +117,7 @@ void SetLameEquations(SOLVER& Solver) {
 	Equation.BoundaryConditions.push_back(Bound);
 
 	Equation.Intitialization();
-	Equation.Relax = 0.9;
+	Equation.Relax = 0.8;
 	Solver.Equations.push_back(Equation);
 
 	Solver.MeshMain->Names.push_back("SXX");
