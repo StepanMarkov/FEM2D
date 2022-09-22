@@ -388,7 +388,31 @@ void MESH2D::Meshing(dVec2 Xhead) {
 		}
 	}
 		
-	Optimization(24, 1E-2, 1000);
+	Optimization(24, 5E-4, 10000);
+
+	//vector<dVec2> x;
+	//x.push_back({ -0.03,0.0 });
+	//x.push_back({ 0.03,0.00 });
+	//x.push_back({ 0.15,0.25 });
+	//x.push_back({ -0.15,0.25 });
+	//x.push_back({ 0.15,0.0 });
+	//x.push_back({ -0.15,0.0 });
+	//
+	//for (dVec2& x1 : x) {
+	//
+	//	FemNode2D p = *Nodes.begin();
+	//	double mindist = 1E+10;
+	//
+	//	for (auto& node : Nodes)
+	//		if (distance(node->X, x1) < mindist) {
+	//			mindist = distance(node->X, x1);
+	//			p = node;
+	//		}
+	//
+	//	p->X = x1;
+	//}
+
+
 																			                                                 
 	#pragma omp parallel
 	{

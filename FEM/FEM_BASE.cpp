@@ -1,5 +1,6 @@
 #include "FEM_BASE.h"
 #include "FEM_RESULTS.h"
+#include <iostream>
 
 using namespace FEM;
 
@@ -133,7 +134,7 @@ double CELL2D::IntegrateElem(const std::function<double(dVec2)>& Func, int Num) 
 		}
 		x[0] += dx[0];
 	}
-	return (abs(this->Area) / 2.0 * Sum / (double)(n));
+	return (ShapeMoment0 * Sum / (double)(n));
 }
 //======================================================================================================================//
 
@@ -173,11 +174,7 @@ void CELL2D::FormCalculate(bool Axis) {
 	Form[2][0] = Nodes[2]->X[0] - Nodes[1]->X[0];
 	Form[2][1] = Nodes[0]->X[0] - Nodes[2]->X[0];
 	Form[2][2] = Nodes[1]->X[0] - Nodes[0]->X[0];
-
-	//опредение площади элемента (не приведенная)
-	Area = det3(1.0, Nodes[0]->X[0], Nodes[0]->X[1],
-                1.0, Nodes[1]->X[0], Nodes[1]->X[1],
-		        1.0, Nodes[2]->X[0], Nodes[2]->X[1]);
+	Area = Form[0][0] + Form[0][1] + Form[0][2];
 
 
 	for (int i(0); i != 3; ++i)
@@ -197,23 +194,20 @@ void CELL2D::FormCalculate(bool Axis) {
 
 	if (!Axis) {
 
-		ShapeMoment0 = abs(Area) / 2.0;
+		ShapeMoment0 = abs(Area)/2.0;
 
 		for (int i(0); i != 3; ++i)
-			ShapeMoment1[i] = IntegrateElem([&](dVec2 x) {
-			return (Form[0][i] + Form[1][i] * x[0] + Form[2][i] * x[1]); 
-				}, 50);
+			ShapeMoment1[i] = ShapeMoment0 / 3.0;
 
 		for (int i(0); i != 3; ++i)
 			for (int j(0); j != 3; ++j)
-				ShapeMoment2[i][j] = IntegrateElem([&](dVec2 x) {
-					return (Form[0][i] + Form[1][i] * x[0] + Form[2][i] * x[1]) *
-						   (Form[0][j] + Form[1][j] * x[0] + Form[2][j] * x[1]);
-						   }, 50);
+				if (i == j)
+					ShapeMoment2[i][j] = ShapeMoment0 / 6.0;
+				else ShapeMoment2[i][j] = ShapeMoment0 / 12.0;
 	}
 	else {
 
-		ShapeMoment0 = IntegrateElem([&](dVec2 x) {return (x[1]); }, 50);
+		ShapeMoment0 = abs(Area) / 2.0;
 
 		for (int i(0); i != 3; ++i)
 			ShapeMoment1[i] = IntegrateElem([&](dVec2 x) {

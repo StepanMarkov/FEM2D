@@ -169,6 +169,7 @@ void EQUATION::UpdateMatrix() {
 					for (int i(0); i != P->Cells.size(); ++i) {
 						auto& cell = P->Cells[i];
 						P->MatrixFree[Neq] += (cell->ShapeMoment1[P->IndexSelf[i]])
+							//P->MatrixFree[Neq] += cell->ShapeMoment0 / 3.0
 							* cell->GetGradient(term.param1[0], term.param1[1]) 
 							* term.ConstCell(cell);
 					}
@@ -209,12 +210,15 @@ void EQUATION::UpdateMatrix() {
 //========================================================================================================================//
 void EQUATION::InternalIteration() {
 
+	double CurrentResidials = 0.0;
+
 	for(auto& P : Mesh->Nodes) {
 		
 		double sum(0.0);
 		
 		for (int i(0); i != P->Nodes.size(); ++i) {
 			
+
 			sum += P->Nodes[i]->Value[Neq] * P->Matrix[Neq][i];
 			
 			//if (!Static)
